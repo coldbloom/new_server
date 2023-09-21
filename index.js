@@ -1,13 +1,16 @@
 require('dotenv').config()
 const express = require('express')
+const cors = require('cors')
 const sequelize = require('./db')
 const authRouter = require('./authRouter')
 
 const Port = process.env.PORT || 3031;
 const app = express();
 
+app.use(cors());
+
 app.use(express.json());
-app.use("/auth", authRouter)
+app.use("/auth", authRouter);
 
 app.get("/", (req, res) => {
     res.json("ПРивет, я работаю!")
