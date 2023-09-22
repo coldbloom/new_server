@@ -4,7 +4,7 @@ const cors = require('cors')
 const sequelize = require('./db')
 const models = require('./models/models')
 
-const router = require('./routes/index')
+const router = require('./routes/index') // импорт основного маршрута
 
 
 const Port = process.env.PORT || 3031;
