@@ -2,7 +2,9 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const sequelize = require('./db')
-const authRouter = require('./authRouter')
+
+const router = require('./routes/index')
+
 
 const Port = process.env.PORT || 3031;
 const app = express();
@@ -10,7 +12,9 @@ const app = express();
 app.use(cors());
 
 app.use(express.json());
-app.use("/auth", authRouter);
+
+app.use('/api', router)  // слушаем маршруты
+
 
 app.get("/", (req, res) => {
     res.json("ПРивет, я работаю!")
