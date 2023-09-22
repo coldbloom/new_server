@@ -25,15 +25,16 @@ const ProductImage= sequelize.define('productImage', {
     path: {type: DataTypes.STRING, unique: true, allowNull: false},
 })
 
+Category.hasMany(Product)
+Product.belongsTo(Category)
+
+Product.hasMany(ProductImage)
+ProductImage.belongsTo(Product)
+
+
 module.exports = {
     User,
     Category,
     Product,
     ProductImage
 }
-
-Category.hasMany(Product)
-Product.belongsTo(Category)
-
-Product.hasMany(ProductImage)
-ProductImage.belongsTo(Product)

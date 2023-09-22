@@ -2,6 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const sequelize = require('./db')
+const models = require('./models/models')
 
 const router = require('./routes/index')
 
@@ -11,7 +12,7 @@ const app = express();
 
 app.use(cors());
 
-app.use(express.json());
+app.use(express.json());  // для того чтобы наше приложение могло парсить json-формат
 
 app.use('/api', router)  // слушаем маршруты
 
