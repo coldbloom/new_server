@@ -8,6 +8,32 @@ const User = sequelize.define('user', {
     role: {type: DataTypes.STRING, defaultValue: "USER"},
 })
 
+
+const Category = sequelize.define('category', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    name: {type: DataTypes.STRING, unique: true, allowNull: false},
+})
+
+const Product = sequelize.define('product', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    name: {type: DataTypes.STRING, unique: true, allowNull: false},
+    price: {type: DataTypes.INTEGER, allowNull: false},
+})
+
+const ProductImage= sequelize.define('productImage', {
+    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+    path: {type: DataTypes.STRING, unique: true, allowNull: false},
+})
+
 module.exports = {
-    User
+    User,
+    Category,
+    Product,
+    ProductImage
 }
+
+Category.hasMany(Product)
+Product.belongsTo(Category)
+
+Product.hasMany(ProductImage)
+ProductImage.belongsTo(Product)
