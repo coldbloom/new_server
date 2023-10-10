@@ -3,13 +3,13 @@ const ApiError = require('../error/ApiError')
 
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer')
 
 class ProductImageController {
+
     async create(req, res, next) {
         try {
             const { id } = req.params; // получаем id продукта из параметров запроса
-            const { image } = req.files; // получаем изображение из запроса
-            console.log(image, 'id из параметров для изображения')
 
             const product = await Product.findByPk(id); // находим продукт по id
 
@@ -17,25 +17,68 @@ class ProductImageController {
                 return next(ApiError.badRequest(`Product with id ${id} not found.`));
             }
 
-            const productDir = path.join(process.cwd(), 'media/images', id.toString()); // создаем путь к папке продукта
-            if (!fs.existsSync(productDir)) { // проверяем, существует ли папка продукта
-                fs.mkdirSync(productDir); // если не существует, создаем ее
-            }
+            const storage = multer.diskStorage({
+                destination: function (req, file, cb) {
+                    const dir = `media/images/${id}`; // создаем путь к папке с id продукта
+                    if (!fs.existsSync(dir)) { // проверяем, существует ли папка
+                        fs.mkdirSync(dir); // если папки нет, то создаем ее
+                    }
+                    cb(null, dir); // указываем папку, куда будут сохраняться файлы
 
-            const imageExt = path.extname(image.name); // получаем расширение файла изображения
-            const imageName = `${Date.now()}${imageExt}`; // генерируем уникальное имя файла изображения
-            const imagePath = path.join(productDir, imageName); // создаем путь к файлу изображения
+                },
+                filename: function (req, file, cb) {
+                    cb(null, Date.now() + '-' + file.originalname); // генерируем уникальное имя файла
+                }
+            });
 
-            await image.mv(imagePath); // сохраняем изображение в файл
 
-            const productImage = await ProductImage.create({ path: imagePath }); // создаем новую запись в таблице ProductImage
-            await product.addProductImage(productImage); // связываем изображение с продуктом
+            const upload = multer({ storage: storage });
 
-            res.json(productImage); // возвращаем созданную запись изображения в ответе
+            upload.single('image')(req, res, async function (err) { // добавляем async перед функцией обратного вызова
+                if (err) {
+                    return next(ApiError.badRequest(err.message));
+                }
+                const image = req.file;
+
+                // сохраняем путь к файлу в базу данных
+                const productImage = await ProductImage.create({
+                    path: path.join(`media/images/${id}`, image.filename), // формируем путь к файлу
+                    productId: id
+                });
+
+                res.json(productImage); // отправляем созданную запись в ответе
+            });
+
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }
     }
+
+    async getAll(req, res, next) {
+        try {
+            const { id } = req.params; // получаем id продукта из параметров запроса
+
+            const dir = `media/images/${id}`; // создаем путь к папке с id продукта
+
+            if (!fs.existsSync(dir)) { // проверяем, существует ли папка
+                return res.json([]); // если папки нет, то возвращаем пустой массив
+            }
+
+            const files = fs.readdirSync(dir); // получаем список файлов в папке
+
+            const images = files.map(file => {
+                return {
+                    path: path.join(dir, file), // формируем путь к файлу
+                }
+            });
+
+            res.json(images); // отправляем массив изображений в ответе
+
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
 }
 
 module.exports = new ProductImageController();

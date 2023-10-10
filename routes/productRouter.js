@@ -9,5 +9,6 @@ router.get('/:id', productController.getOne)
 router.delete('/:id', productController.delete)
 
 router.post('/:id/uploadImage', productImageController.create)
+router.get('/:id/images', productImageController.getAll)
 
 module.exports = router
