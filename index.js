@@ -10,7 +10,7 @@ const router = require('./routes/index') // импорт основного ма
 const PORT = process.env.PORT || 3031;
 const app = express();
 
-//для commit
+//для commit 222
 // Установка папки 'public' в качестве статической директории
 app.use(express.static('media'));
 
