@@ -42,7 +42,7 @@ class ProductImageController {
 
                 // сохраняем путь к файлу в базу данных
                 const productImage = await ProductImage.create({
-                    path: path.join(`media/images/${id}`, image.filename), // формируем путь к файлу
+                    path: path.join(`images/${id}`, image.filename), // формируем путь к файлу
                     productId: id
                 });
 
@@ -54,26 +54,34 @@ class ProductImageController {
         }
     }
 
-    async getAll(req, res, next) {
+    async delete(req, res, next) {
         try {
-            const { id } = req.params; // получаем id продукта из параметров запроса
+            const {id} = req.params;
 
-            const dir = `media/images/${id}`; // создаем путь к папке с id продукта
+            const productImage = await ProductImage.findByPk(id);
 
-            if (!fs.existsSync(dir)) { // проверяем, существует ли папка
-                return res.json([]); // если папки нет, то возвращаем пустой массив
+            if (!productImage) {
+                return next(ApiError.badRequest(`Image with ${id} not found`));
             }
 
-            const files = fs.readdirSync(dir); // получаем список файлов в папке
+            const imagePath = path.join('media', productImage.path);
 
-            const images = files.map(file => {
-                return {
-                    path: path.join(dir, file), // формируем путь к файлу
+            //удаляем файл из папки
+            fs.unlink(imagePath, (error) => {
+                if (error) {
+                    return next(ApiError.internal(error.message));
                 }
+
+                //удаляем запись о файле из базы данных
+                ProductImage.destroy({ where: {id} })
+                    .then(() => {
+                        //res.sendStatus(204); // Возвращаем статус 204 No Content в случае успеха
+                        return res.status(200).json({ message: "Изображение успешно удалено" });
+                    })
+                    .catch((error) => {
+                        next(ApiError.internal(error.message));
+                    })
             });
-
-            res.json(images); // отправляем массив изображений в ответе
-
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }

@@ -20,15 +20,15 @@ const Product = sequelize.define('product', {
     price: {type: DataTypes.INTEGER, allowNull: false},
 })
 
-const ProductImage= sequelize.define('productImage', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    path: {type: DataTypes.STRING, unique: true, allowNull: false},
-})
+    const ProductImage= sequelize.define('productImage', {
+        id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+        path: {type: DataTypes.STRING, unique: true, allowNull: false},
+    })
 
 Category.hasMany(Product)
 Product.belongsTo(Category)
 
-Product.hasMany(ProductImage)
+Product.hasMany(ProductImage, { as: 'images' })
 ProductImage.belongsTo(Product)
 
 
