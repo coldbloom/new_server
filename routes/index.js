@@ -1,7 +1,7 @@
 const Router = require('express')
 const router = new Router()
 
-const adminAuthRouter = require('./adminAythRouter')
+const adminAuthRouter = require('./adminAuthRouter')
 const categoryRouter = require('./categoryRouter')
 const productRouter = require('./productRouter')
 const imageRouter = require('./imageRouter')

@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken")
 const signatureAccess = "MySuP3R_z3kr3t_access";
 const signatureRefresh = "MySuP3R_z3kr3t_refresh";
 
-const accessTokenAge = 60 * 15;
+const accessTokenAge = 60 * 3;
 const refreshTokenAge = 60 * 60;
 
 const verifyAuthorizationMiddleware = (req, res, next) => {
@@ -12,6 +12,7 @@ const verifyAuthorizationMiddleware = (req, res, next) => {
         : "";
 
     if (!token) {
+        console.log('Не верный токен')
         return res.sendStatus(401);
     }
 
@@ -25,8 +26,8 @@ const verifyAuthorizationMiddleware = (req, res, next) => {
 };
 
 const verifyRefreshTokenMiddleware = (req, res, next) => {
-    const refreshToken = req.cookies.refreshToken;
-    console.log(refreshToken, ' verifyRefreshTokenMiddleware')
+
+    const refreshToken = req.headers.cookie.split("=")[1];
 
     if (!refreshToken) {
         return res.sendStatus(401);
@@ -46,7 +47,7 @@ const getTokens = (login) => ({
         expiresIn: `${accessTokenAge}s`,
     }),
     refreshToken: jwt.sign({ login }, signatureRefresh, {
-        expiresIn: `${refreshTokenTokenAge}s`,
+        expiresIn: `${refreshTokenAge}s`,
     }),
 });
 

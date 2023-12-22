@@ -16,10 +16,15 @@ class AdminAuthController {
             .update(password)
             .digest("hex")
         const isVerifiedPassword = hash === fakeUser.passwordHash;
-
-        if (login !== fakeUser.login || isVerifiedPassword) {
+        console.log()
+        if (login !== fakeUser.login) {
             return res.status(401).send("Login fail");
         }
+
+        if (!isVerifiedPassword) {
+            return res.status(401).send("Password fail");
+        }
+
 
         const { accessToken, refreshToken } = getTokens(login);
 
@@ -45,6 +50,7 @@ class AdminAuthController {
     }
 
     async refresh(req, res, next){
+        console.log('refresh token ?/?', req.user.log)
         const { accessToken, refreshToken } = getTokens(req.user.login);
 
         res.setHeader(
@@ -58,7 +64,7 @@ class AdminAuthController {
     }
 
     async profile(req, res, next){
-        res.send("admin");
+        res.send(req.user.login); // "admin"
     }
 }
 

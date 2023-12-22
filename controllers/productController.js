@@ -2,14 +2,42 @@ const { Product } = require('./../models/models')
 const ApiError = require('../error/ApiError')
 const {ProductImage} = require("../models/models");
 
+const multer  = require('multer');
+const memoryStorage = multer.memoryStorage();
+const fs = require("fs");
+
+const upload = multer({ storage: memoryStorage }); // указывается путь для сохранения файлов в буфферной зоне
+
 class ProductController {
-    async crete(req, res, next) {
+
+    async create(req, res, next) {
         try {
-            const {name, price, categoryId} = req.body;
-            const product = await Product.create({name, price, categoryId})
-            return res.json(product)
+            upload.any()(req, res, async function (err) {
+                if (err) {
+                    return next(ApiError.badRequest(err.message));
+                }
+
+                const {name, price, categoryId, about} = req.body;
+                const product = await Product.create({name, price, categoryId})
+                const productId = product.id;
+
+                const images = req.files;
+
+                console.log(images, 'сами файлы')
+
+                const dir = `media/images/${productId}`;
+                if (!fs.existsSync(dir)) {
+                    fs.mkdirSync(dir)
+                }
+
+                await Promise.all(images.map(async (file) => {
+                    const originName = Date.now().toString().slice(0, 7) + '-' + file.fieldname + '-' + file.originalname;
+                }));
+
+                return res.json(product)
+            });
         } catch (e) {
-            next(ApiError.badRequest(e.message))
+            next(ApiError.badRequest(e.message));
         }
     }
     async getAll(req ,res, next) {

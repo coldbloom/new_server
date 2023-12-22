@@ -24,7 +24,6 @@ class ProductImageController {
                         fs.mkdirSync(dir); // если папки нет, то создаем ее
                     }
                     cb(null, dir); // указываем папку, куда будут сохраняться файлы
-
                 },
                 filename: function (req, file, cb) {
                     cb(null, Date.now() + '-' + file.originalname); // генерируем уникальное имя файла
